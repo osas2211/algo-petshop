@@ -2,11 +2,11 @@
 txn ApplicationID
 int 0
 ==
-bnz main_l8
+bnz main_l9
 txn OnCompletion
 int DeleteApplication
 ==
-bnz main_l7
+bnz main_l8
 txna ApplicationArgs 0
 byte "adopt"
 ==
@@ -20,14 +20,30 @@ txn GroupIndex
 int 0
 ==
 &&
+txn NumApplications
+int 1
+==
+&&
+assert
+txna Applications 1
+byte "FEE"
+app_global_get_ex
+store 1
+store 0
+load 1
+bnz main_l7
+byte "ADOPT_FEE"
+int 0
+app_global_put
+main_l6:
 byte "ADOPT_FEE"
 app_global_get
 int 0
 >
-&&
 gtxn 1 TypeEnum
 int pay
 ==
+&&
 gtxn 1 Receiver
 global CreatorAddress
 ==
@@ -41,15 +57,7 @@ gtxn 1 Sender
 gtxn 0 Sender
 ==
 &&
-&&
-txn NumApplications
-int 1
-==
-&&
-bnz main_l6
-int 0
-return
-main_l6:
+assert
 byte "ADOPTED"
 int 1
 app_global_put
@@ -59,11 +67,16 @@ app_global_put
 int 1
 return
 main_l7:
+byte "ADOPT_FEE"
+load 0
+app_global_put
+b main_l6
+main_l8:
 txn Sender
 global CreatorAddress
 ==
 return
-main_l8:
+main_l9:
 txn NumAppArgs
 int 5
 ==

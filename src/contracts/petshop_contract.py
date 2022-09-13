@@ -37,8 +37,8 @@ class Pet:
 
             Approve(),
         ])
-    # mod_contract = Txn.applications[1]
 
+    # get adoption fee from mod contract
     def getAdoptFee(self, mod_contract: Expr):
         # gets fee from mod_contract
         get_global_fee = App.globalGetEx(mod_contract, Bytes("FEE"))
@@ -50,45 +50,49 @@ class Pet:
         )
 
     def adopt(self):
-        # The number of transactions within the group transaction must be exactly 2.
-        # first one being the adopt function and the second being the payment transactions
-        valid_number_of_transacations = Global.group_size() == Int(2)
+        return Seq([
+            # first sanity checks to check transaction params
+            Assert(
+                And(
+                    # The number of transactions within the group transaction must be exactly 2.
+                    # first one being the adopt function and the second being the payment transactions
+                    Global.group_size() == Int(2),
 
-        # check that the adopt call is made ahead of the payment transaction
-        valid_transaction_order = Txn.group_index() == Int(0)
+                    # check that the adopt call is made ahead of the payment transaction
+                    Txn.group_index() == Int(0),
 
-        # The number of external applications must be == 1. as a call is made to the Mod_contract to get the adoptionFee
-        # Txn.applications[0] is a special index denoting the current app being interacted with
-        valid_application_args = Txn.applications.length() == Int(1)
+                    # The number of external applications must be == 1. as a call is made to the Mod_contract to get the adoptionFee
+                    # Txn.applications[0] is a special index denoting the current app being interacted with
+                    Txn.applications.length() == Int(1),
+                ),
+            ),
 
-        # get fee from the mod contract
-        self.getAdoptFee(Txn.applications[1])
+            # get fee from the mod contract
+            self.getAdoptFee(Txn.applications[1]),
 
-        adoptFee_is_valid = App.globalGet(self.Variables.fee) > Int(0)
+            # checks for second transaction
+            Assert(
+                And(
+                    # check if fee is greater is zero
+                    App.globalGet(self.Variables.fee) > Int(0),
+                    # The second transaction of the group must be the payment transaction.
+                    Gtxn[1].type_enum() == TxnType.Payment,
+                    # The receiver of the payment should be the creator of the app
+                    Gtxn[1].receiver() == Global.creator_address(),
+                    # The payment amount should match the product's price multiplied by the number of products bought
+                    Gtxn[1].amount() == App.globalGet(self.Variables.fee),
+                    # The sender of the payment transaction should match the sender of the smart contract call transaction.
+                    Gtxn[1].sender() == Gtxn[0].sender(),
+                )
+            ),
 
-        valid_payment_to_seller = And(
-            # The second transaction of the group must be the payment transaction.
-            Gtxn[1].type_enum() == TxnType.Payment,
-            # The receiver of the payment should be the creator of the app
-            Gtxn[1].receiver() == Global.creator_address(),
-            # The payment amount should match the product's price multiplied by the number of products bought
-            Gtxn[1].amount() == App.globalGet(self.Variables.fee),
-            # The sender of the payment transaction should match the sender of the smart contract call transaction.
-            Gtxn[1].sender() == Gtxn[0].sender(),
-        )
+            # The global state is updated using App.globalPut()
 
-        can_adopt = And(valid_number_of_transacations, valid_transaction_order,
-                        adoptFee_is_valid, valid_payment_to_seller, valid_application_args, )
-
-        # The global state is updated using App.globalPut()
-        update_state = Seq([
             App.globalPut(self.Variables.adopted, Int(1)),
             App.globalPut(self.Variables.owner, Txn.sender()),
             Approve()
-        ])
 
-        #  If the checks do not succeed, the transaction is rejected.
-        return If(can_adopt).Then(update_state).Else(Reject())
+        ])
 
     # To delete a product.
 
