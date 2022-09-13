@@ -2,40 +2,17 @@
 txn ApplicationID
 int 0
 ==
-bnz main_l13
+bnz main_l8
 txn OnCompletion
 int DeleteApplication
 ==
-bnz main_l12
+bnz main_l7
 txna ApplicationArgs 0
 byte "adopt"
 ==
-bnz main_l9
-txna ApplicationArgs 0
-byte "test"
-==
-bnz main_l5
+bnz main_l4
 err
-main_l5:
-txna Applications 1
-byte "FEE"
-app_global_get_ex
-store 1
-store 0
-load 1
-bnz main_l8
-byte "ADOPT_FEE"
-int 0
-app_global_put
-main_l7:
-int 1
-return
-main_l8:
-byte "ADOPT_FEE"
-load 0
-app_global_put
-b main_l7
-main_l9:
+main_l4:
 global GroupSize
 int 2
 ==
@@ -69,10 +46,10 @@ txn NumApplications
 int 1
 ==
 &&
-bnz main_l11
+bnz main_l6
 int 0
 return
-main_l11:
+main_l6:
 byte "ADOPTED"
 int 1
 app_global_put
@@ -81,12 +58,12 @@ txn Sender
 app_global_put
 int 1
 return
-main_l12:
+main_l7:
 txn Sender
 global CreatorAddress
 ==
 return
-main_l13:
+main_l8:
 txn NumAppArgs
 int 5
 ==

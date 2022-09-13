@@ -33,17 +33,14 @@ def approval():
     def updateFee():
         return Seq(
             [
-                # check that txn sender is creator of contract
-                Assert(Global.creator_address() == Txn.sender()),
-
                 # The number of arguments attached to the transaction should be exactly 1.
-                Assert(Txn.application_args.length() == Int(1)),
+                Assert(Txn.application_args.length() == Int(2)),
 
                 # check that argument passed which is pet shop fee is greater than zero
-                Assert(Btoi(Txn.application_args[0]) > Int(0)),
+                Assert(Btoi(Txn.application_args[1]) > Int(0)),
 
                 # update fee for adoption
-                App.globalPut(global_adopt_fee, Txn.application_args[0]),
+                App.globalPut(global_adopt_fee, Btoi(Txn.application_args[1])),
 
                 Approve(),
             ]

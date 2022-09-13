@@ -13,21 +13,18 @@ byte "newFee"
 bnz main_l4
 err
 main_l4:
-global CreatorAddress
-txn Sender
-==
-assert
 txn NumAppArgs
-int 1
+int 2
 ==
 assert
-txna ApplicationArgs 0
+txna ApplicationArgs 1
 btoi
 int 0
 >
 assert
 byte "FEE"
-txna ApplicationArgs 0
+txna ApplicationArgs 1
+btoi
 app_global_put
 int 1
 return

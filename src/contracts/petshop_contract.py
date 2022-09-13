@@ -16,7 +16,6 @@ class Pet:
 
     class AppMethods:
         adopt = Bytes("adopt")
-        test = Bytes("test")
 
     # to create a new pet listed for adoption
     def application_creation(self):
@@ -91,12 +90,6 @@ class Pet:
         #  If the checks do not succeed, the transaction is rejected.
         return If(can_adopt).Then(update_state).Else(Reject())
 
-    def testGetFee(self):
-        return Seq([
-            self.getAdoptFee(Txn.applications[1]),
-            Approve(),
-        ])
-
     # To delete a product.
 
     def application_deletion(self):
@@ -113,7 +106,6 @@ class Pet:
              self.application_deletion()],
             # if the irst argument of the transaction matches the AppMethods.buy value, the buy() method is called.
             [Txn.application_args[0] == self.AppMethods.adopt, self.adopt()],
-            [Txn.application_args[0] == self.AppMethods.test, self.testGetFee()],
         )
 
     # The approval program is responsible for processing all application calls to the contract.
