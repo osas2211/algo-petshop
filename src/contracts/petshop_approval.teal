@@ -1,0 +1,121 @@
+#pragma version 6
+txn ApplicationID
+int 0
+==
+bnz main_l13
+txn OnCompletion
+int DeleteApplication
+==
+bnz main_l12
+txna ApplicationArgs 0
+byte "adopt"
+==
+bnz main_l9
+txna ApplicationArgs 0
+byte "test"
+==
+bnz main_l5
+err
+main_l5:
+txna Applications 1
+byte "FEE"
+app_global_get_ex
+store 1
+store 0
+load 1
+bnz main_l8
+byte "ADOPT_FEE"
+int 0
+app_global_put
+main_l7:
+int 1
+return
+main_l8:
+byte "ADOPT_FEE"
+load 0
+app_global_put
+b main_l7
+main_l9:
+global GroupSize
+int 2
+==
+txn GroupIndex
+int 0
+==
+&&
+byte "ADOPT_FEE"
+app_global_get
+int 0
+>
+&&
+gtxn 1 TypeEnum
+int pay
+==
+gtxn 1 Receiver
+global CreatorAddress
+==
+&&
+gtxn 1 Amount
+byte "ADOPT_FEE"
+app_global_get
+==
+&&
+gtxn 1 Sender
+gtxn 0 Sender
+==
+&&
+&&
+txn NumApplications
+int 1
+==
+&&
+bnz main_l11
+int 0
+return
+main_l11:
+byte "ADOPTED"
+int 1
+app_global_put
+byte "OWNER"
+txn Sender
+app_global_put
+int 1
+return
+main_l12:
+txn Sender
+global CreatorAddress
+==
+return
+main_l13:
+txn NumAppArgs
+int 5
+==
+assert
+txn Note
+byte "pet-shop:uPets"
+==
+assert
+byte "NAME"
+txna ApplicationArgs 0
+app_global_put
+byte "IMAGE"
+txna ApplicationArgs 1
+app_global_put
+byte "AGE"
+txna ApplicationArgs 2
+btoi
+app_global_put
+byte "BREED"
+txna ApplicationArgs 3
+app_global_put
+byte "LOCATION"
+txna ApplicationArgs 4
+app_global_put
+byte "ADOPTED"
+int 0
+app_global_put
+byte "OWNER"
+txn Sender
+app_global_put
+int 1
+return
