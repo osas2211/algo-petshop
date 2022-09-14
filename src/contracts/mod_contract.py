@@ -18,7 +18,7 @@ def approval():
                 Assert(Txn.application_args.length() == Int(1)),
 
                 # check for note, Mod for moderator
-                Assert(Txn.note() == Bytes("pet-shop:uMod")),
+                Assert(Txn.note() == Bytes("pet-shop:uModv2")),
 
                 # check that argument passed which is pet shop fee is greater than zero
                 Assert(Btoi(Txn.application_args[0]) > Int(0)),
@@ -31,13 +31,18 @@ def approval():
         )
 
     def updateFee():
+        scratch_fee = ScratchVar(TealType.uint64)
         return Seq(
             [
+                scratch_fee.store(App.globalGet(global_adopt_fee)),
                 # The number of arguments attached to the transaction should be exactly 1.
                 Assert(Txn.application_args.length() == Int(2)),
 
                 # check that argument passed which is pet shop fee is greater than zero
                 Assert(Btoi(Txn.application_args[1]) > Int(0)),
+
+                # check that argument is not equal to the current adoptFee
+                Assert(scratch_fee.load() != Btoi(Txn.application_args[1])),
 
                 # update fee for adoption
                 App.globalPut(global_adopt_fee, Btoi(Txn.application_args[1])),

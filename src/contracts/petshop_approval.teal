@@ -13,6 +13,9 @@ byte "adopt"
 bnz main_l4
 err
 main_l4:
+byte "OWNER"
+app_global_get
+store 0
 global GroupSize
 int 2
 ==
@@ -24,13 +27,21 @@ txn NumApplications
 int 1
 ==
 &&
+txn NumAppArgs
+int 2
+==
+&&
+load 0
+txna ApplicationArgs 1
+!=
+&&
 assert
 txna Applications 1
 byte "FEE"
 app_global_get_ex
+store 2
 store 1
-store 0
-load 1
+load 2
 bnz main_l7
 byte "ADOPT_FEE"
 int 0
@@ -62,13 +73,13 @@ byte "ADOPTED"
 int 1
 app_global_put
 byte "OWNER"
-txn Sender
+txna ApplicationArgs 1
 app_global_put
 int 1
 return
 main_l7:
 byte "ADOPT_FEE"
-load 0
+load 1
 app_global_put
 b main_l6
 main_l8:
@@ -78,11 +89,11 @@ global CreatorAddress
 return
 main_l9:
 txn NumAppArgs
-int 5
+int 6
 ==
 assert
 txn Note
-byte "pet-shop:uPets"
+byte "pet-shop:uPetsv2"
 ==
 assert
 byte "NAME"
@@ -93,7 +104,6 @@ txna ApplicationArgs 1
 app_global_put
 byte "AGE"
 txna ApplicationArgs 2
-btoi
 app_global_put
 byte "BREED"
 txna ApplicationArgs 3
@@ -105,7 +115,7 @@ byte "ADOPTED"
 int 0
 app_global_put
 byte "OWNER"
-txn Sender
+txna ApplicationArgs 5
 app_global_put
 int 1
 return

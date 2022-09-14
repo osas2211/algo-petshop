@@ -13,6 +13,9 @@ byte "newFee"
 bnz main_l4
 err
 main_l4:
+byte "FEE"
+app_global_get
+store 0
 txn NumAppArgs
 int 2
 ==
@@ -21,6 +24,11 @@ txna ApplicationArgs 1
 btoi
 int 0
 >
+assert
+load 0
+txna ApplicationArgs 1
+btoi
+!=
 assert
 byte "FEE"
 txna ApplicationArgs 1
@@ -39,7 +47,7 @@ int 1
 ==
 assert
 txn Note
-byte "pet-shop:uMod"
+byte "pet-shop:uModv2"
 ==
 assert
 txna ApplicationArgs 0

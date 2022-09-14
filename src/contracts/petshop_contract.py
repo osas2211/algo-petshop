@@ -7,7 +7,7 @@ class Pet:
     class Variables:
         name = Bytes("NAME")  # ByteSlice
         image = Bytes("IMAGE")  # ByteSlice
-        age = Bytes("AGE")  # Uint64
+        age = Bytes("AGE")  # ByteSlice
         breed = Bytes("BREED")  # ByteSlice
         location = Bytes("LOCATION")  # ByteSlice
         adopted = Bytes("ADOPTED")  # Uint64 0 means false, 1 means true
@@ -20,20 +20,20 @@ class Pet:
     # to create a new pet listed for adoption
     def application_creation(self):
         return Seq([
-            # The number of arguments attached to the transaction should be exactly 4.
-            Assert(Txn.application_args.length() == Int(5)),
+            # The number of arguments attached to the transaction should be exactly 6.
+            Assert(Txn.application_args.length() == Int(6)),
 
             # The note attached to the transaction must be "tutorial-marketplace:uv1", which we define to be the note that marks a product within our marketplace
-            Assert(Txn.note() == Bytes("pet-shop:uPets")),
+            Assert(Txn.note() == Bytes("pet-shop:uPetsv2")),
 
             # Store the transaction arguments into the applications's global's state
             App.globalPut(self.Variables.name, Txn.application_args[0]),
             App.globalPut(self.Variables.image, Txn.application_args[1]),
-            App.globalPut(self.Variables.age, Btoi(Txn.application_args[2])),
+            App.globalPut(self.Variables.age, Txn.application_args[2]),
             App.globalPut(self.Variables.breed, Txn.application_args[3]),
             App.globalPut(self.Variables.location, Txn.application_args[4]),
             App.globalPut(self.Variables.adopted, Int(0)),
-            App.globalPut(self.Variables.owner, Txn.sender()),
+            App.globalPut(self.Variables.owner, Txn.application_args[5]),
 
             Approve(),
         ])
@@ -50,7 +50,10 @@ class Pet:
         )
 
     def adopt(self):
+        scratch_adopter = ScratchVar(TealType.bytes)
+
         return Seq([
+            scratch_adopter.store(App.globalGet(self.Variables.owner)),
             # first sanity checks to check transaction params
             Assert(
                 And(
@@ -64,6 +67,12 @@ class Pet:
                     # The number of external applications must be == 1. as a call is made to the Mod_contract to get the adoptionFee
                     # Txn.applications[0] is a special index denoting the current app being interacted with
                     Txn.applications.length() == Int(1),
+
+                    # The number of arguments attached to the transaction should be exactly 2.
+                    Txn.application_args.length() == Int(2),
+
+                    # Check that current owner is not the transaction sender as that's redundant
+                    scratch_adopter.load() != Txn.application_args[1],
                 ),
             ),
 
@@ -89,7 +98,7 @@ class Pet:
             # The global state is updated using App.globalPut()
 
             App.globalPut(self.Variables.adopted, Int(1)),
-            App.globalPut(self.Variables.owner, Txn.sender()),
+            App.globalPut(self.Variables.owner, Txn.application_args[1]),
             Approve()
 
         ])

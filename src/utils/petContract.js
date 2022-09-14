@@ -1,18 +1,10 @@
-import algosdk, { getApplicationAddress } from "algosdk";
+import algosdk from "algosdk";
 import * as contractParams from "./constants";
 /* eslint import/no-webpack-loader-syntax: off */
-import petApprovalProgram from "!!raw-loader!../contracts/marketplace_approval.teal";
-import petClearProgram from "!!raw-loader!../contracts/marketplace_clear.teal";
-import modApprovalProgram from "!!raw-loader!../contracts/mod_approval.teal";
-import modClearProgram from "!!raw-loader!../contracts/mod_clear.teal";
+import petApprovalProgram from "!!raw-loader!../contracts/petshop_approval.teal";
+import petClearProgram from "!!raw-loader!../contracts/petshop_clear.teal";
 import { base64ToUTF8String, utf8ToBase64String } from "./conversions";
 
-class ModContract {
-  constructor(appId, adoptFee) {
-    this.appId = appId;
-    this.adoptFee = adoptFee;
-  }
-}
 class Pet {
   constructor(
     appId,
@@ -41,226 +33,12 @@ class Pet {
 
 // Compile smart contract in .teal format to program
 const compileProgram = async (programSource) => {
-  let encoder = new TextDecoder();
+  let encoder = new TextEncoder();
   let programBytes = encoder.encode(programSource);
   let compileResponse = await contractParams.algodClient
     .compile(programBytes)
     .do();
   return new Uint8Array(Buffer.from(compileResponse.result, "base64"));
-};
-
-// INITIALIZE MOD CONTRACT
-export const createModContract = async (senderAddress, fee) => {
-  console.log("Adding Pet...");
-
-  let params = await contractParams.algodClient.getTransactionParams().do();
-
-  // Compile Programs
-  const compiledApprovalProgram = await compileProgram(modApprovalProgram);
-  const compiledClearProgram = await compileProgram(modClearProgram);
-
-  // Build note to identify transaction later and required app args as Uint8Array
-  let note = new TextEncoder.encode(contractParams.modContractNote);
-  let fee_arg = new TextEncoder.encode(fee);
-
-  let appArgs = [fee_arg];
-
-  let txn = algosdk.makeApplicationCreateTxnFromObject({
-    from: senderAddress,
-    suggestedParams: params,
-    onComplete: algosdk.OnApplicationComplete.NoOpOC,
-    approvalProgram: compiledApprovalProgram,
-    clearProgram: compiledClearProgram,
-    numLocalInts: contractParams.numModLocalInts,
-    numLocalByteSlices: contractParams.numModLocalBytes,
-    numGlobalInts: contractParams.numModGlobalInts,
-    numGlobalByteSlices: contractParams.numModGlobalBytes,
-    note: note,
-    appArgs: appArgs,
-  });
-
-  // Get transaction ID
-  let txId = txn.txID().toString();
-
-  // Sign & submit the transaction
-  let signedTxn = await contractParams.myAlgoConnect.signTransaction(
-    txn.toByte()
-  );
-  console.log("Signed transaction with txID: %s", txId);
-  await contractParams.algodClient.sendRawTransaction(signedTxn.blob).do();
-
-  // Wait for transaction to be confirmed
-  let confirmedTxn = await algosdk.waitForConfirmation(
-    contractParams.algodClient,
-    txId,
-    4
-  );
-
-  // Get the completed Transaction
-  console.log(
-    "Transaction " +
-      txId +
-      " confirmed in round " +
-      confirmedTxn["confirmed-round"]
-  );
-
-  // Get created application id and notify about completion
-  let transactionResponse = await contractParams.algodClient
-    .pendingTransactionInformation(txId)
-    .do();
-  let appId = transactionResponse["application-index"];
-  console.log("Created new app-id: ", appId);
-  return appId;
-};
-
-// UPDATE FEE
-export const updateFeeAction = async (senderAddress, modContract, newPrice) => {
-  console.log("Updating Price....");
-
-  let params = await contractParams.algodClient.getTransactionParams().do();
-
-  // Build required app args as Uint8Array
-  let price = algosdk.encodeUint64(newPrice);
-  let feeArg = new TextEncoder().encode("newFee");
-  let appArgs = [feeArg, price];
-
-  // Create ApplicationCallTxn
-  let txn = algosdk.makeApplicationCallTxnFromObject({
-    from: senderAddress,
-    appIndex: modContract.appId,
-    onComplete: algosdk.OnApplicationComplete.NoOpOC,
-    suggestedParams: params,
-    appArgs: appArgs,
-  });
-
-  // Get transaction ID
-  let txId = txn.txID().toString();
-
-  // Sign & submit the transaction
-  let signedTxn = await contractParams.myAlgoConnect.signTransaction(
-    txn.toByte()
-  );
-  console.log("Signed transaction with txID: %s", txId);
-  await contractParams.algodClient.sendRawTransaction(signedTxn.blob).do();
-
-  // Wait for transaction to be confirmed
-  let confirmedTxn = await algosdk.waitForConfirmation(
-    contractParams.algodClient,
-    txId,
-    4
-  );
-
-  // Get the completed Transaction
-  console.log(
-    "Transaction " +
-      txId +
-      " confirmed in round " +
-      confirmedTxn["confirmed-round"]
-  );
-};
-
-// DELETE MOD CONTRACT
-export const deleteModContract = async (senderAddress, modContract) => {
-  console.log("Deleting Mod Contract...");
-
-  let params = await contractParams.algodClient.getTransactionParams().do();
-
-  // Create ApplicationDeleteTxn
-  let txn = algosdk.makeApplicationDeleteTxnFromObject({
-    from: senderAddress,
-    suggestedParams: params,
-    appIndex: modContract.appId,
-  });
-
-  // Get transaction ID
-  let txId = txn.txID().toString();
-
-  // Sign & submit the transaction
-  let signedTxn = await contractParams.myAlgoConnect.signTransaction(
-    txn.toByte()
-  );
-  console.log("Signed transaction with txID: %s", txId);
-  await contractParams.algodClient.sendRawTransaction(signedTxn.blob).do();
-
-  // Wait for transaction to be confirmed
-  const confirmedTxn = await algosdk.waitForConfirmation(
-    contractParams.algodClient,
-    txId,
-    4
-  );
-
-  // Get the completed Transaction
-  console.log(
-    "Transaction " +
-      txId +
-      " confirmed in round " +
-      confirmedTxn["confirmed-round"]
-  );
-
-  // Get application id of deleted application and notify about completion
-  let transactionResponse = await contractParams.algodClient
-    .pendingTransactionInformation(txId)
-    .do();
-  let appId = transactionResponse["txn"]["txn"].apid;
-  console.log("Deleted app-id: ", appId);
-};
-
-//GET MOD CONTRACT
-export const getModContract = async (address) => {
-  console.log("Fetching Pets...");
-  let note = new TextEncoder().encode(contractParams.modContractNote);
-  let encodedNote = Buffer.from(note).toString("base64");
-
-  // Step 1: Get all transactions by notePrefix (+ minRound filter for performance)
-  let transactionInfo = await contractParams.indexerClient
-    .searchForTransactions()
-    .notePrefix(encodedNote)
-    .txType("appl")
-    .minRound(contractParams.minRound)
-    .address(address)
-    .do();
-
-  // NOTE: Adding the address tag in the indexerClient returns transactions from newest to oldest.
-  // Hence after the first valid mod account, we break out of the loop
-  // Only getting most recent modContract
-  let modContract;
-  for (const transaction of transactionInfo.transactions) {
-    let appId = transaction["created-application-index"];
-    if (appId) {
-      // Step 2: Get application by application id
-      let _modContract = await getModApplication(appId);
-      if (_modContract) {
-        modContract = _modContract;
-        break;
-      }
-    }
-  }
-  console.log("Mod contract fetched..");
-  return modContract;
-};
-
-const getModApplication = async (appId) => {
-  try {
-    let response = await contractParams.indexerClient
-      .lookupApplications(appId)
-      .includeAll(true)
-      .do();
-
-    if (response.application.deleted) {
-      return null;
-    }
-
-    let globalState = response.application.params["global-state"];
-
-    // Parse field of response and return contract
-    let adoptFee = 0;
-
-    if (getField("FEE", globalState) !== undefined) {
-      adoptFee = getField("FEE", globalState).value.int;
-    }
-
-    return new ModContract(appId, adoptFee);
-  } catch {}
 };
 
 //======================================================PET SECTION============================================================//
@@ -279,11 +57,12 @@ export const createPetAction = async (senderAddress, pet) => {
   let note = new TextEncoder().encode(contractParams.petShopNote);
   let name = new TextEncoder().encode(pet.name);
   let image = new TextEncoder().encode(pet.image);
-  let age = algosdk.encodeUint64(pet.age);
+  let age = new TextEncoder().encode(pet.age);
   let breed = new TextEncoder().encode(pet.breed);
   let location = new TextEncoder().encode(pet.location);
+  let owner = new TextEncoder().encode(senderAddress);
 
-  let appArgs = [name, image, age, breed, location];
+  let appArgs = [name, image, age, breed, location, owner];
 
   let txn = algosdk.makeApplicationCreateTxnFromObject({
     from: senderAddress,
@@ -341,7 +120,10 @@ export const adoptPetAction = async (senderAddress, pet, modContract) => {
 
   // Build required app args as Uint8Array
   let adoptArg = new TextEncoder().encode("adopt");
-  let appArgs = [adoptArg];
+  let newOwner = new TextEncoder().encode(senderAddress);
+  let appArgs = [adoptArg, newOwner];
+
+  let foreignApps = [modContract.appId];
 
   // Create ApplicationCallTxn
   let appCallTxn = algosdk.makeApplicationCallTxnFromObject({
@@ -350,16 +132,17 @@ export const adoptPetAction = async (senderAddress, pet, modContract) => {
     onComplete: algosdk.OnApplicationComplete.NoOpOC,
     suggestedParams: params,
     appArgs: appArgs,
-    foreignApps: modContract.appId,
+    foreignApps: foreignApps,
   });
-
   // Create PaymentTxn
   let paymentTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
     from: senderAddress,
-    to: pet.owner,
+    to: pet.appCreator,
     amount: modContract.adoptFee,
     suggestedParams: params,
   });
+
+  console.log("here.");
 
   let txnArray = [appCallTxn, paymentTxn];
 
@@ -484,7 +267,7 @@ const getApplication = async (appId) => {
     let appCreator = response.application.params.creator;
     let name = "";
     let image = "";
-    let age = 0;
+    let age = "";
     let breed = "";
     let location = "";
     let adopted = 0;
@@ -502,7 +285,8 @@ const getApplication = async (appId) => {
     }
 
     if (getField("AGE", globalState) !== undefined) {
-      age = getField("AGE", globalState).value.int;
+      let field = getField("AGE", globalState).value.bytes;
+      age = base64ToUTF8String(field);
     }
 
     if (getField("BREED", globalState) !== undefined) {
@@ -516,7 +300,7 @@ const getApplication = async (appId) => {
     }
 
     if (getField("ADOPTED", globalState) !== undefined) {
-      adopted = getField("ADOPTED", globalState).value.int;
+      adopted = getField("ADOPTED", globalState).value.uint;
     }
 
     if (getField("OWNER", globalState) !== undefined) {
@@ -525,7 +309,7 @@ const getApplication = async (appId) => {
     }
 
     if (getField("ADOPT_FEE", globalState) !== undefined) {
-      fee = getField("ADOPT_FEE", globalState).value.int;
+      fee = getField("ADOPT_FEE", globalState).value.uint;
     }
 
     return new Pet(
