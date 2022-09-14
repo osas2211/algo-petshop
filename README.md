@@ -20,11 +20,37 @@
 
 [//]: # (  </a>)
 
-<h3 align="center">Algorand React Marketplace</h3>
+<h3 align="center">Algorand Pet Shop Submission</h3>
 
 </div>
 
 ![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/cloudy.png)
+
+<!-- INFO -->
+
+demo [link](https://osas2211.github.io/algo-petshop)
+
+This Dapp provides a way for pet shops to handle their pet adoptions using the Algorand Blockchain.
+
+
+- A general FEE is used for the petshop, meaning all pets can be adopted at a certain fee. 
+
+
+   - This is achieved with the aid of a helper contract(application) which helps to store the data of the general fee
+
+
+   - The helper function also has a feature of updating the fee as the owner of the store wishes (Note: currently this feature is made accessible to all users for testing purposes, but ideally it would only be accessible to store owner)
+
+
+- User pay a fee and have a pet assigned to them, from which they can receive the pets from the shop.
+
+
+- People can also choose to add their pets to the petshop
+
+
+
+
+## :point_down: Getting Started
 
 <!-- GETTING STARTED -->
 
@@ -38,7 +64,7 @@
 
 1. Clone repo
    ```sh
-   git clone https://github.com/dacadeorg/algorand-react-marketplace.git
+   git clone https://github.com/osas2211/algo-petshop.git
    ```
 
 2. Install packages
