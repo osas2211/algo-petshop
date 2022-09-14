@@ -71,34 +71,28 @@ const Pets = ({ address, fetchBalance }) => {
   const createPet = async (data) => {
     setLoading(true);
     createPetAction(address, data)
-      .then(() => {
+      .then(async () => {
         toast(<NotificationSuccess text="Pet added successfully." />);
-        getPets();
+        await getPets();
         fetchBalance(address);
       })
       .catch((error) => {
         console.log(error);
         toast(<NotificationError text="Failed to add pet." />);
-      })
-      .finally((_) => {
-        setLoading(false);
       });
   };
 
   const adoptPet = async (pet) => {
     setLoading(true);
     adoptPetAction(address, pet, modContract)
-      .then(() => {
+      .then(async () => {
         toast(<NotificationSuccess text="Pet adopted successfully" />);
-        getPets();
+        await getPets();
         fetchBalance(address);
       })
       .catch((error) => {
         console.log(error);
         toast(<NotificationError text="Failed to adopt pet." />);
-        setLoading(false);
-      })
-      .finally((_) => {
         setLoading(false);
       });
   };
@@ -106,17 +100,14 @@ const Pets = ({ address, fetchBalance }) => {
   const deletePet = async (pet) => {
     setLoading(true);
     deletePetAction(address, pet.appId)
-      .then(() => {
+      .then(async () => {
         toast(<NotificationSuccess text="Pet deleted successfully" />);
-        getPets();
+        await getPets();
         fetchBalance(address);
       })
       .catch((error) => {
         console.log(error);
         toast(<NotificationError text="Failed to delete pet." />);
-        setLoading(false);
-      })
-      .finally((_) => {
         setLoading(false);
       });
   };
@@ -125,19 +116,16 @@ const Pets = ({ address, fetchBalance }) => {
   const createMod = async (adoptionFee) => {
     setLoading(true);
     createModContract(address, adoptionFee)
-      .then(() => {
+      .then(async () => {
         toast(
           <NotificationSuccess text="Mod contract created successfully." />
         );
-        getModStatus();
+        await getModStatus();
         fetchBalance(address);
       })
       .catch((error) => {
         console.log(error);
         toast(<NotificationError text="Failed to create mod contract." />);
-        setLoading(false);
-      })
-      .finally((_) => {
         setLoading(false);
       });
   };
@@ -145,17 +133,14 @@ const Pets = ({ address, fetchBalance }) => {
   const updateFee = async (newFee) => {
     setLoading(true);
     updateFeeAction(address, modContract, newFee)
-      .then(() => {
+      .then(async () => {
         toast(<NotificationSuccess text="Adoption Fee updated successfully" />);
-        getModStatus();
+        await getModStatus();
         fetchBalance(address);
       })
       .catch((error) => {
         console.log(error);
         toast(<NotificationError text="Failed to update fee" />);
-        setLoading(false);
-      })
-      .finally((_) => {
         setLoading(false);
       });
   };
