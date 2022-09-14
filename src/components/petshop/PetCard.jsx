@@ -5,7 +5,6 @@ import { truncateAddress } from "../../utils/conversions";
 import Identicon from "../utils/Identicon";
 
 const PetCard = ({ address, pet, adoptPet, deletePet }) => {
-  // const { name, image, description, price, sold, appId, owner } = product;
   const {
     appId,
     name,
