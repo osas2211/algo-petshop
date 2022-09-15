@@ -142,6 +142,9 @@ const Pets = ({ address, fetchBalance }) => {
         console.log(error);
         toast(<NotificationError text="Failed to update fee" />);
         setLoading(false);
+      })
+      .finally((_) => {
+        setLoading(false);
       });
   };
 
