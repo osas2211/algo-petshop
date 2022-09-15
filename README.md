@@ -1,25 +1,5 @@
 <div id="top"></div>
 
-
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-[![MIT License][license-shield]][license-url]
-
-
-
-<!-- PROJECT LOGO -->
-<br />
-<div align="center">
-
-[//]: # (<img src="./README/images/logo.png" alt="Logo" width="80" height="80" />)
-
-[//]: # (  <a href="https://github.com/othneildrew/Best-README-Template">)
-
-
-[//]: # (  </a>)
-
 <h3 align="center">Algorand Pet Shop Submission</h3>
 
 </div>
