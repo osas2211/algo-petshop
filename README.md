@@ -28,6 +28,8 @@
 
 <!-- INFO -->
 
+## :point_down: Getting Started
+
 demo [link](https://osas2211.github.io/algo-petshop)
 
 This Dapp provides a way for pet shops to handle their pet adoptions using the Algorand Blockchain.
@@ -47,10 +49,6 @@ This Dapp provides a way for pet shops to handle their pet adoptions using the A
 
 - People can also choose to add their pets to the petshop
 
-
-
-
-## :point_down: Getting Started
 
 <!-- GETTING STARTED -->
 
