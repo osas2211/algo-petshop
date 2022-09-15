@@ -8,7 +8,7 @@
 
 <!-- INFO -->
 
-## :point_down: Contract Info
+## :information_source: Contract Info
 
 demo [link](https://osas2211.github.io/algo-petshop)
 
