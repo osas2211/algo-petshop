@@ -4,7 +4,11 @@ import AddPet from "./AddPet";
 import PetCard from "./PetCard";
 import ModOptions from "./ModOptions";
 import Loader from "../utils/Loader";
-import { NotificationError, NotificationSuccess } from "../utils/Notifications";
+import {
+  NotificationError,
+  NotificationSuccess,
+  NotificationInfo,
+} from "../utils/Notifications";
 import { microAlgosToString } from "../../utils/conversions";
 import {
   createModContract,
@@ -37,7 +41,7 @@ const Pets = ({ address, fetchBalance }) => {
   // function to get list of pets
   const getPets = useCallback(async () => {
     setLoading(true);
-    toast(<NotificationSuccess text="Getting Pets Data" />);
+    toast(<NotificationInfo text="Getting Pets Data" />);
     getPetsAction()
       .then((pets) => {
         if (pets) {
@@ -55,7 +59,6 @@ const Pets = ({ address, fetchBalance }) => {
   }, []);
 
   const getModStatus = useCallback(async () => {
-    toast(<NotificationSuccess text="Getting Mod Data" />);
     getModContract()
       .then((modC) => {
         if (modC) {
