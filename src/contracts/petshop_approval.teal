@@ -15,7 +15,7 @@ err
 main_l4:
 byte "OWNER"
 app_global_get
-store 0
+store 1
 global GroupSize
 int 2
 ==
@@ -31,7 +31,7 @@ txn NumAppArgs
 int 2
 ==
 &&
-load 0
+load 1
 txna ApplicationArgs 1
 !=
 &&
@@ -39,9 +39,9 @@ assert
 txna Applications 1
 byte "FEE"
 app_global_get_ex
+store 3
 store 2
-store 1
-load 2
+load 3
 bnz main_l7
 byte "ADOPT_FEE"
 int 0
@@ -79,12 +79,19 @@ int 1
 return
 main_l7:
 byte "ADOPT_FEE"
-load 1
+load 2
 app_global_put
 b main_l6
 main_l8:
-txn Sender
-global CreatorAddress
+byte "OWNER"
+app_global_get
+store 0
+txn NumAppArgs
+int 1
+==
+assert
+load 0
+txna ApplicationArgs 0
 ==
 return
 main_l9:

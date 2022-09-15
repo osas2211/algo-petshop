@@ -106,7 +106,15 @@ class Pet:
     # To delete a product.
 
     def application_deletion(self):
-        return Return(Txn.sender() == Global.creator_address())
+        scratch_owner = ScratchVar(TealType.bytes)
+        return Seq(
+            scratch_owner.store(App.globalGet(self.Variables.owner)),
+            # The number of arguments attached to the transaction should be exactly 1.
+            Assert(Txn.application_args.length() == Int(1)),
+            Return(
+                scratch_owner.load() == Txn.application_args[0],
+            ),
+        )
 
     # Check transaction conditions
     def application_start(self):

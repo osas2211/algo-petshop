@@ -180,12 +180,15 @@ export const deletePetAction = async (senderAddress, index) => {
   console.log("Deleting application");
 
   let params = await contractParams.algodClient.getTransactionParams().do();
+  let sender = new TextEncoder().encode(senderAddress);
+  let appArgs = [sender];
 
   // Create ApplicationDeleteTxn
   let txn = algosdk.makeApplicationDeleteTxnFromObject({
     from: senderAddress,
     suggestedParams: params,
     appIndex: index,
+    appArgs: appArgs,
   });
 
   // Get transaction ID
@@ -272,7 +275,6 @@ const getApplication = async (appId) => {
     let location = "";
     let adopted = 0;
     let owner = "";
-    let fee = 0;
 
     if (getField("NAME", globalState) !== undefined) {
       let field = getField("NAME", globalState).value.bytes;
@@ -307,11 +309,6 @@ const getApplication = async (appId) => {
       let field = getField("OWNER", globalState).value.bytes;
       owner = base64ToUTF8String(field);
     }
-
-    if (getField("ADOPT_FEE", globalState) !== undefined) {
-      fee = getField("ADOPT_FEE", globalState).value.uint;
-    }
-
     return new Pet(
       appId,
       name,
@@ -321,7 +318,6 @@ const getApplication = async (appId) => {
       location,
       adopted,
       owner,
-      fee,
       appCreator
     );
   } catch (err) {

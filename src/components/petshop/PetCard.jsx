@@ -14,10 +14,8 @@ const PetCard = ({ address, pet, adoptPet, deletePet }) => {
     location,
     adopted,
     owner,
-    fee,
     appCreator,
   } = pet;
-  console.log(fee);
 
   const isAdopted = () => adopted === 1;
 
