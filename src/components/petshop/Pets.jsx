@@ -37,6 +37,7 @@ const Pets = ({ address, fetchBalance }) => {
   // function to get list of pets
   const getPets = useCallback(async () => {
     setLoading(true);
+    toast(<NotificationSuccess text="Getting Pets Data" />);
     getPetsAction()
       .then((pets) => {
         if (pets) {
@@ -54,6 +55,7 @@ const Pets = ({ address, fetchBalance }) => {
   }, []);
 
   const getModStatus = useCallback(async () => {
+    toast(<NotificationSuccess text="Getting Mod Data" />);
     getModContract()
       .then((modC) => {
         if (modC) {
