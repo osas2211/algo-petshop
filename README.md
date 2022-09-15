@@ -28,7 +28,7 @@
 
 <!-- INFO -->
 
-## :point_down: Getting Started
+## :point_down: Contract Info
 
 demo [link](https://osas2211.github.io/algo-petshop)
 
