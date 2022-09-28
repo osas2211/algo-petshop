@@ -8,17 +8,17 @@ import { base64ToUTF8String, utf8ToBase64String } from "./conversions";
 class Pet {
   constructor(
     appId,
+    appCreator,
     name,
     image,
     age,
     breed,
     location,
     adopted,
-    owner,
-    fee,
-    appCreator
+    owner
   ) {
     this.appId = appId;
+    this.appCreator = appCreator;
     this.name = name;
     this.image = image;
     this.age = age;
@@ -26,8 +26,6 @@ class Pet {
     this.location = location;
     this.adopted = adopted; // 0 means false, 1 means true
     this.owner = owner;
-    this.fee = fee;
-    this.appCreator = appCreator;
   }
 }
 
@@ -309,16 +307,17 @@ const getApplication = async (appId) => {
       let field = getField("OWNER", globalState).value.bytes;
       owner = base64ToUTF8String(field);
     }
+
     return new Pet(
       appId,
+      appCreator,
       name,
       image,
       age,
       breed,
       location,
       adopted,
-      owner,
-      appCreator
+      owner
     );
   } catch (err) {
     return null;
