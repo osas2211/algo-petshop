@@ -3,7 +3,11 @@ import * as contractParams from "./constants";
 /* eslint import/no-webpack-loader-syntax: off */
 import petApprovalProgram from "!!raw-loader!../contracts/petshop_approval.teal";
 import petClearProgram from "!!raw-loader!../contracts/petshop_clear.teal";
-import { base64ToUTF8String, utf8ToBase64String } from "./conversions";
+import {
+  base64ToUTF8String,
+  getAddress,
+  utf8ToBase64String,
+} from "./conversions";
 
 class Pet {
   constructor(
@@ -58,9 +62,8 @@ export const createPetAction = async (senderAddress, pet) => {
   let age = new TextEncoder().encode(pet.age);
   let breed = new TextEncoder().encode(pet.breed);
   let location = new TextEncoder().encode(pet.location);
-  let owner = new TextEncoder().encode(senderAddress);
 
-  let appArgs = [name, image, age, breed, location, owner];
+  let appArgs = [name, image, age, breed, location];
 
   let txn = algosdk.makeApplicationCreateTxnFromObject({
     from: senderAddress,
@@ -118,8 +121,7 @@ export const adoptPetAction = async (senderAddress, pet, modContract) => {
 
   // Build required app args as Uint8Array
   let adoptArg = new TextEncoder().encode("adopt");
-  let newOwner = new TextEncoder().encode(senderAddress);
-  let appArgs = [adoptArg, newOwner];
+  let appArgs = [adoptArg];
 
   let foreignApps = [modContract.appId];
 
@@ -139,8 +141,6 @@ export const adoptPetAction = async (senderAddress, pet, modContract) => {
     amount: modContract.adoptFee,
     suggestedParams: params,
   });
-
-  console.log("here.");
 
   let txnArray = [appCallTxn, paymentTxn];
 
@@ -178,15 +178,12 @@ export const deletePetAction = async (senderAddress, index) => {
   console.log("Deleting application");
 
   let params = await contractParams.algodClient.getTransactionParams().do();
-  let sender = new TextEncoder().encode(senderAddress);
-  let appArgs = [sender];
 
   // Create ApplicationDeleteTxn
   let txn = algosdk.makeApplicationDeleteTxnFromObject({
     from: senderAddress,
     suggestedParams: params,
     appIndex: index,
-    appArgs: appArgs,
   });
 
   // Get transaction ID
@@ -305,7 +302,7 @@ const getApplication = async (appId) => {
 
     if (getField("OWNER", globalState) !== undefined) {
       let field = getField("OWNER", globalState).value.bytes;
-      owner = base64ToUTF8String(field);
+      owner = getAddress(field);
     }
 
     return new Pet(

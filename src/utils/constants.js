@@ -27,7 +27,7 @@ export const myAlgoConnect = new MyAlgoConnect();
 export const minRound = 21540981;
 
 // https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0002.md
-export const petShopNote = "pet-shop:uPetsv2";
+export const petShopNote = "pet-shop:uPetsv3";
 
 // Maximum local storage allocation, immutable
 export const numLocalInts = 0;

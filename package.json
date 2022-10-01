@@ -14,6 +14,7 @@
     "bootstrap-icons": "^1.8.1",
     "bytes32": "^0.0.3",
     "gh-pages": "^4.0.0",
+    "js-base64": "^3.7.2",
     "prop-types": "^15.8.1",
     "react": "^17.0.2",
     "react-bootstrap": "^2.3.1",

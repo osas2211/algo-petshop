@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Button, Card, Col, Stack } from "react-bootstrap";
+import { Button, Card, Col, Stack, Badge } from "react-bootstrap";
 import { truncateAddress } from "../../utils/conversions";
 import Identicon from "../utils/Identicon";
 
@@ -28,14 +28,21 @@ const PetCard = ({ address, pet, adoptPet, deletePet }) => {
           <Stack direction="horizontal" gap={2}>
             <Identicon size={28} address={owner} />
             <span className="font-monospace text-secondary">
+              Owner:{" "}
               <a
                 href={`https://testnet.algoexplorer.io/address/${owner}`}
                 target="_blank"
                 rel="noreferrer"
               >
-                {isAdopted() ? truncateAddress(owner) : "AVAILABLE"}
+                {truncateAddress(owner)}
               </a>
             </span>
+            <Badge bg="secondary" className="ms-auto">
+              {!isAdopted()
+                ? "AVAILABLE"
+                : "NOT AVAILABLE"
+                }
+            </Badge>
           </Stack>
         </Card.Header>
         <div className="ratio ratio-4x3">
