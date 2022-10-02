@@ -43,7 +43,7 @@ const compileProgram = async (programSource) => {
 
 // CREATE PET: ApplicationCreateTxn
 export const createPetAction = async (senderAddress, pet) => {
-  console.log("Adding Pet...");
+  
 
   let params = await contractParams.algodClient.getTransactionParams().do();
 
@@ -83,7 +83,7 @@ export const createPetAction = async (senderAddress, pet) => {
   let signedTxn = await contractParams.myAlgoConnect.signTransaction(
     txn.toByte()
   );
-  console.log("Signed transaction with txID: %s", txId);
+  
   await contractParams.algodClient.sendRawTransaction(signedTxn.blob).do();
 
   // Wait for transaction to be confirmed
@@ -94,25 +94,20 @@ export const createPetAction = async (senderAddress, pet) => {
   );
 
   // Get the completed Transaction
-  console.log(
-    "Transaction " +
-      txId +
-      " confirmed in round " +
-      confirmedTxn["confirmed-round"]
-  );
+  
 
   // Get created application id and notify about completion
   let transactionResponse = await contractParams.algodClient
     .pendingTransactionInformation(txId)
     .do();
   let appId = transactionResponse["application-index"];
-  console.log("Created new app-id: ", appId);
+  
   return appId;
 };
 
 // ADOPT PET:
 export const adoptPetAction = async (senderAddress, pet, modContract) => {
-  console.log("Adopting pet...");
+  
 
   let params = await contractParams.algodClient.getTransactionParams().do();
 
@@ -140,7 +135,7 @@ export const adoptPetAction = async (senderAddress, pet, modContract) => {
     suggestedParams: params,
   });
 
-  console.log("here.");
+  
 
   let txnArray = [appCallTxn, paymentTxn];
 
@@ -152,7 +147,7 @@ export const adoptPetAction = async (senderAddress, pet, modContract) => {
   let signedTxn = await contractParams.myAlgoConnect.signTransaction(
     txnArray.map((txn) => txn.toByte())
   );
-  console.log("Signed group transaction");
+  
   let tx = await contractParams.algodClient
     .sendRawTransaction(signedTxn.map((txn) => txn.blob))
     .do();
@@ -165,17 +160,12 @@ export const adoptPetAction = async (senderAddress, pet, modContract) => {
   );
 
   // Notify about completion
-  console.log(
-    "Group transaction " +
-      tx.txId +
-      " confirmed in round " +
-      confirmedTxn["confirmed-round"]
-  );
+  
 };
 
 // DELETE PET
 export const deletePetAction = async (senderAddress, index) => {
-  console.log("Deleting application");
+  
 
   let params = await contractParams.algodClient.getTransactionParams().do();
   let sender = new TextEncoder().encode(senderAddress);
@@ -196,7 +186,7 @@ export const deletePetAction = async (senderAddress, index) => {
   let signedTxn = await contractParams.myAlgoConnect.signTransaction(
     txn.toByte()
   );
-  console.log("Signed transaction with txID: %s", txId);
+  
   await contractParams.algodClient.sendRawTransaction(signedTxn.blob).do();
 
   // Wait for transaction to be confirmed
@@ -207,24 +197,19 @@ export const deletePetAction = async (senderAddress, index) => {
   );
 
   // Get the completed Transaction
-  console.log(
-    "Transaction " +
-      txId +
-      " confirmed in round " +
-      confirmedTxn["confirmed-round"]
-  );
+  
 
   // Get application id of deleted application and notify about completion
   let transactionResponse = await contractParams.algodClient
     .pendingTransactionInformation(txId)
     .do();
   let appId = transactionResponse["txn"]["txn"].apid;
-  console.log("Deleted app-id: ", appId);
+  
 };
 
 // GET PETS: Using Indexer
 export const getPetsAction = async () => {
-  console.log("Fetching Pets...");
+  
   let note = new TextEncoder().encode(contractParams.petShopNote);
   let encodedNote = Buffer.from(note).toString("base64");
 
@@ -247,7 +232,7 @@ export const getPetsAction = async () => {
       }
     }
   }
-  console.log("Pets Fetched...");
+  
   return pets;
 };
 

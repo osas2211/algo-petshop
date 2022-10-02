@@ -24,8 +24,7 @@ const compileProgram = async (programSource) => {
 
 // INITIALIZE MOD CONTRACT
 export const createModContract = async (senderAddress, fee) => {
-  console.log("Creating Mod Contract...");
-
+  
   let params = await contractParams.algodClient.getTransactionParams().do();
 
   // Compile Programs
@@ -59,7 +58,7 @@ export const createModContract = async (senderAddress, fee) => {
   let signedTxn = await contractParams.myAlgoConnect.signTransaction(
     txn.toByte()
   );
-  console.log("Signed transaction with txID: %s", txId);
+  
   await contractParams.algodClient.sendRawTransaction(signedTxn.blob).do();
 
   // Wait for transaction to be confirmed
@@ -70,25 +69,20 @@ export const createModContract = async (senderAddress, fee) => {
   );
 
   // Get the completed Transaction
-  console.log(
-    "Transaction " +
-      txId +
-      " confirmed in round " +
-      confirmedTxn["confirmed-round"]
-  );
+  
 
   // Get created application id and notify about completion
   let transactionResponse = await contractParams.algodClient
     .pendingTransactionInformation(txId)
     .do();
   let appId = transactionResponse["application-index"];
-  console.log("Created new app-id: ", appId);
+  
   return appId;
 };
 
 // UPDATE FEE
 export const updateFeeAction = async (senderAddress, modContract, newFee) => {
-  console.log("Updating Price....");
+  
 
   let params = await contractParams.algodClient.getTransactionParams().do();
 
@@ -113,7 +107,7 @@ export const updateFeeAction = async (senderAddress, modContract, newFee) => {
   let signedTxn = await contractParams.myAlgoConnect.signTransaction(
     txn.toByte()
   );
-  console.log("Signed transaction with txID: %s", txId);
+  
   await contractParams.algodClient.sendRawTransaction(signedTxn.blob).do();
 
   // Wait for transaction to be confirmed
@@ -124,17 +118,12 @@ export const updateFeeAction = async (senderAddress, modContract, newFee) => {
   );
 
   // Get the completed Transaction
-  console.log(
-    "Transaction " +
-      txId +
-      " confirmed in round " +
-      confirmedTxn["confirmed-round"]
-  );
+  
 };
 
 // DELETE MOD CONTRACT
 export const deleteModContract = async (senderAddress, modContract) => {
-  console.log("Deleting Mod Contract...");
+  
 
   let params = await contractParams.algodClient.getTransactionParams().do();
 
@@ -152,7 +141,7 @@ export const deleteModContract = async (senderAddress, modContract) => {
   let signedTxn = await contractParams.myAlgoConnect.signTransaction(
     txn.toByte()
   );
-  console.log("Signed transaction with txID: %s", txId);
+  
   await contractParams.algodClient.sendRawTransaction(signedTxn.blob).do();
 
   // Wait for transaction to be confirmed
@@ -163,24 +152,19 @@ export const deleteModContract = async (senderAddress, modContract) => {
   );
 
   // Get the completed Transaction
-  console.log(
-    "Transaction " +
-      txId +
-      " confirmed in round " +
-      confirmedTxn["confirmed-round"]
-  );
+  
 
   // Get application id of deleted application and notify about completion
   let transactionResponse = await contractParams.algodClient
     .pendingTransactionInformation(txId)
     .do();
   let appId = transactionResponse["txn"]["txn"].apid;
-  console.log("Deleted app-id: ", appId);
+  
 };
 
 //GET MOD CONTRACT
 export const getModContract = async () => {
-  console.log("Fetching Mod Contract...");
+  
   let note = new TextEncoder().encode(contractParams.modContractNote);
   let encodedNote = Buffer.from(note).toString("base64");
 
@@ -208,7 +192,7 @@ export const getModContract = async () => {
       }
     }
   }
-  console.log("Mod contract fetched..");
+  
   return modContract;
 };
 
